@@ -15,14 +15,20 @@ struct MealListView: View {
             List(listViewModel.meals.sorted { $0.title.lowercased() < $1.title.lowercased() }) { meal in
                 NavigationLink(destination: MealDetailView(idMeal: meal.idMeal)) {
                     HStack {
-                        AsyncImage(url: URL(string: meal.thumbnail))
+                        AsyncImage(url: URL(string: meal.thumbnail)) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                            } placeholder: {
+                                ProgressView()
+                            }
                             .frame(width: 50, height: 50)
-                            .clipShape(Circle())
+                            .clipShape(Capsule())
                         Text(meal.title)
                     }
                 }
             }
-            .navigationTitle("Desserts")
+            .navigationTitle("Meals")
             .task {
                 await listViewModel.fetchMeals()
             }

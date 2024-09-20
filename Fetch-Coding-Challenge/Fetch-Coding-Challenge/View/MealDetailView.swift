@@ -19,11 +19,18 @@ struct MealDetailView: View {
                         Text(meal.title)
                             .font(.title)
                             .bold()
-                            .padding()
-                        AsyncImage(url: URL(string: meal.thumbnail))
+                        Spacer()
+                        AsyncImage(url: URL(string: meal.thumbnail)) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                            } placeholder: {
+                                ProgressView()
+                            }
                             .frame(width: 100, height: 100)
                             .clipShape(Rectangle())
-                    }.padding(.bottom)
+                        Spacer()
+                    }
                     
                     Text("Instructions")
                         .font(.headline)
@@ -34,7 +41,12 @@ struct MealDetailView: View {
                         .font(.headline)
                     ForEach(Array(meal.ingredients!.keys), id: \.self) { ingredient in
                         if let ingredients = meal.ingredients {
-                            Text("\(ingredient) – \(ingredients[ingredient] ?? "Unknown amount")")
+                            HStack {
+                                Text(ingredient)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Text(ingredients[ingredient] ?? "Unknown amount")
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                            }
                         }
                     }
                 } else {
