@@ -32,6 +32,16 @@ struct MealListView: View {
             .task {
                 await listViewModel.fetchMeals()
             }
+            .alert(isPresented: $listViewModel.showingAlert) {
+                Alert(title: Text("Sorry!"),
+                      message: Text("We couldn't get a list of meals"),
+                      primaryButton: .default(Text("Retry")) {
+                          Task {
+                              await listViewModel.fetchMeals()
+                          }
+                      },
+                      secondaryButton: .cancel(Text("Dismiss")))
+            }
         }
     }
 }

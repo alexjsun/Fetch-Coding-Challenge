@@ -9,10 +9,14 @@ import Foundation
 
 class MealDetailViewModel: ObservableObject {
     @Published var meal: Meal? = nil
+    @Published var showingAlert = false
     
     func fetchMeal(idMeal: String) async {
         let urlString = "https://themealdb.com/api/json/v1/1/lookup.php?i=\(idMeal)"
         guard let url = URL(string: urlString) else {
+            await MainActor.run {
+                showingAlert = true
+            }
             print("Error: invalid URL")
             return
         }
@@ -27,9 +31,13 @@ class MealDetailViewModel: ObservableObject {
                     print("Error: invalid detail response")
                     return
                 }
-                self.meal = mealResponse.meals[0]
+                showingAlert = false
+                meal = mealResponse.meals[0]
             }
         } catch {
+            await MainActor.run {
+                showingAlert = true
+            }
             print("Error: \(error.localizedDescription)")
         }
     }

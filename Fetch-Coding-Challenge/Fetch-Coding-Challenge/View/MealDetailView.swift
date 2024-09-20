@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MealDetailView: View {
     @ObservedObject var detailViewModel = MealDetailViewModel()
+    @State var errorDismissed: Bool = false
     var idMeal: String
     
     var body: some View {
@@ -21,14 +22,14 @@ struct MealDetailView: View {
                             .bold()
                         Spacer()
                         AsyncImage(url: URL(string: meal.thumbnail)) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                            } placeholder: {
-                                ProgressView()
-                            }
-                            .frame(width: 100, height: 100)
-                            .clipShape(Rectangle())
+                            image
+                                .resizable()
+                                .scaledToFit()
+                        } placeholder: {
+                            ProgressView()
+                        }
+                        .frame(width: 100, height: 100)
+                        .clipShape(Rectangle())
                         Spacer()
                     }
                     
@@ -39,8 +40,8 @@ struct MealDetailView: View {
                     
                     Text("Ingredients")
                         .font(.headline)
-                    ForEach(Array(meal.ingredients!.keys), id: \.self) { ingredient in
-                        if let ingredients = meal.ingredients {
+                    if let ingredients = meal.ingredients {
+                        ForEach(Array(ingredients.keys), id: \.self) { ingredient in
                             HStack {
                                 Text(ingredient)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -50,13 +51,28 @@ struct MealDetailView: View {
                         }
                     }
                 } else {
-                    ProgressView()
+                    errorDismissed ?
+                    AnyView(Text("Sorry! Couldn't get meal details")) :
+                    AnyView(ProgressView())
                 }
             }
             .padding()
             .navigationTitle("Meal Details")
             .task {
                 await detailViewModel.fetchMeal(idMeal: idMeal)
+            }
+            .alert(isPresented: $detailViewModel.showingAlert) {
+                Alert(title: Text("Sorry!"),
+                      message: Text("We couldn't get a list of meals"),
+                      primaryButton: .default(Text("Retry")) {
+                          errorDismissed = false
+                          Task {
+                              await detailViewModel.fetchMeal(idMeal: idMeal)
+                          }
+                      },
+                      secondaryButton: .cancel(Text("Dismiss")) {
+                          errorDismissed = true
+                })
             }
         }
     }
