@@ -64,8 +64,8 @@ struct Meal: Identifiable, Decodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         self.idMeal = try container.decode(String.self, forKey: .idMeal)
-        self.title = try container.decode(String.self, forKey: .idMeal)
-        self.thumbnail = try container.decode(String.self, forKey: .idMeal)
+        self.title = try container.decode(String.self, forKey: .strMeal)
+        self.thumbnail = try container.decode(String.self, forKey: .strMealThumb)
         
         self.instructions = try? container.decode(String.self, forKey: .strInstructions)
         var ingredients = [String: String]()
@@ -82,4 +82,8 @@ struct Meal: Identifiable, Decodable {
         }
         self.ingredients = ingredients
     }
+}
+
+struct MealResponse: Decodable {
+    let meals: [Meal]
 }
